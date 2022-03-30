@@ -1,30 +1,20 @@
 version: 0.2
-
+# We can listen for specific phases and execute commands per phase.
 phases:
-  install:
-    commands:
-      - echo Installing Node 12...
-      - curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
-      - sudo apt-get install -y nodejs
-      
-      
-      - echo Installing Yarn...
-      
-      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-      - echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-      - apt install --no-install-recommends yarn
+  # The build server won't have access to our node_modules folder
+  # This is because we have it inside of our .gitignore file
+  # To give our build server access, we can simply run "npm install"
   pre_build:
     commands:
-      - echo Installing dependencies...
-      - yarn
+      - npm install
+  # Now we want to actually build our React app
   build:
-    commands:
-      - echo Testing...
-      - yarn test
-      - echo Building...
-      - yarn build
+   commands:
+      - npm run build
+# Artifacts will specify what files will be uploaded to s3
+# This will include all files within the "build" folder
 artifacts:
   files:
-    - "**/*"
+    - '**/*'
   discard-paths: no
-  base-directory: dist
+  base-directory: build
